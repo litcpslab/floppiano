@@ -1,0 +1,22 @@
+{
+    "name": "Sound Communication",
+    "description": "In this puzzle you will have to figure out a code and transimt the data via sound.",
+    "points": 100,
+    "reveal_after_finish" : "1234",
+    "hints": [
+        {
+            "name": "The Code",
+            "text": "Look for the code on the sheet",
+            "points": 10
+        },
+        {
+            "name": "Press Buttons",
+            "text": "Press the buttons in follwowing order: \n1-6-3-1",
+            "points": 20
+        }
+    ],
+    "mqtt":
+    {
+        "topic": "escape/soundcom"
+    }
+}
