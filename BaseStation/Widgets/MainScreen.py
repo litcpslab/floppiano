@@ -18,14 +18,13 @@ gameTime = 120
 startPoints = 10
 
 class PuzzleInitializeThread(QThread):
-    def __init__(self, communnicationManager: CommunnicationManager, puzzles):
+    def __init__(self, communnicationManager: CommunnicationManager, puzzles: List[Puzzle]):
         super().__init__()
         self.communnicationManager = communnicationManager
         self.puzzles = puzzles
     
     def run(self):
         while True:
-            puzzle: Puzzle
             for puzzle in self.puzzles:
                 if not puzzle.isInitialized:
                     log(f"Sending activation message to: '{puzzle.name}'")
@@ -69,7 +68,6 @@ class MainScreen(GameWidget):
         self.showFinishScreenSignal.connect(self.showFinishScreen)
         self.setButtonFinishedSignal.connect(self.setButtonFinished)
         self.setButtonInitializedSignal.connect(self.setButtonInitialized)
-
 
         # UI        
         l = QLabel("Time left")
