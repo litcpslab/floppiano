@@ -1,0 +1,21 @@
+{
+    "name": "Rotary Phone",
+    "description": "",
+    "points": 100,
+    "hints": [
+        {
+            "name": "Helpline",
+            "text": "Call the number for hints: ...",
+            "points": 10
+        },
+        {
+            "name": "Solution",
+            "text": "...",
+            "points": 80
+        }
+    ],
+    "mqtt":
+    {
+        "topic": "pr_embedded/puzzle_rotary"
+    }
+}
