@@ -3,39 +3,44 @@
 // Define extern variables
 volatile int pulseCount = 0;
 volatile bool digitComplete = false;
+volatile bool cancelPlayback = false;
 unsigned long lastPulseTime = 0;
-bool active = false;
 
 void IRAM_ATTR rotaryInterrupt() {
     unsigned long currentTime = millis();
-    if (currentTime - lastPulseTime > 100) { // 50ms debounce
+    if (currentTime - lastPulseTime > 100) {
         pulseCount++;
         lastPulseTime = currentTime;
-        Serial.print("[Interrupt] Pulse detected. Current count: ");
-        Serial.println(pulseCount);
+        cancelPlayback = true;
+        #if DEBUG
+            Serial.print("[Interrupt] Pulse count: ");
+            Serial.println(pulseCount);
+        #endif
     }
 }
 
 void init_sd_card() {
-    Serial.println("Initializing SD card...");
-    if (!SD.begin(SD_CS_PIN, SPI, 10000000)) { // Set SPI clock to 10MHz
-        Serial.println("Failed to initialize SD card. Check wiring and ensure the card is inserted.");
+    if (!SD.begin(SD_CS_PIN, SPI, 10000000)) {
+        #if DEBUG
+            Serial.println("Failed to initialize SD card");
+        #endif
         return;
     }
-    Serial.println("SD card initialized successfully");
-
-    // List files on the SD card for debugging
-    File root = SD.open("/");
-    if (!root) {
-        Serial.println("Failed to open root directory");
-        return;
-    }
-    File file = root.openNextFile();
-    while (file) {
-        Serial.print("File: ");
-        Serial.println(file.name());
-        file = root.openNextFile();
-    }
+    #if DEBUG
+        Serial.println("SD card initialized successfully");
+        Serial.println("Listing files:");
+        File root = SD.open("/");
+        if (!root) {
+            Serial.println("Failed to open root directory");
+            return;
+        }
+        File file = root.openNextFile();
+        while (file) {
+            Serial.print(" - ");
+            Serial.println(file.name());
+            file = root.openNextFile();
+        }
+    #endif
 }
 
 void setup_i2s() {
@@ -64,10 +69,9 @@ void setup_i2s() {
     i2s_set_pin(I2S_NUM, &pin_config);
 }
 
-
-
-// Function to play WAV audio from the SD card
 void play_audio(const char* file_path) {
+    cancelPlayback = false; 
+
     File audioFile = SD.open(file_path);
     if (!audioFile) {
         Serial.printf("Failed to open file: %s\n", file_path);
@@ -122,7 +126,7 @@ void play_audio(const char* file_path) {
     size_t bytesRead = 0;
     size_t totalBytesRead = 0;
 
-    while (totalBytesRead < header.dataSize && audioFile.available()) {
+    while (totalBytesRead < header.dataSize && audioFile.available() && !cancelPlayback) {
         bytesRead = audioFile.read(buffer, sizeof(buffer));
         if (bytesRead > 0) {
             // Apply volume scaling
@@ -152,5 +156,10 @@ void play_audio(const char* file_path) {
     }
 
     audioFile.close();
-    Serial.println("Playback finished!");
+
+    if (cancelPlayback) {
+        Serial.println("Playback canceled by interrupt.");
+    } else {
+        Serial.println("Playback finished!");
+    }
 }

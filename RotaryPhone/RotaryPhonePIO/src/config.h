@@ -34,9 +34,13 @@ static const char* mqtt_topic_points = MQTT_TOPIC_POINTS;
 
 #define USE_WEBSERVER (1)
 
+#define AUDIOFILENAME_MAX 32
+#define PHONENUMBER_MAX 16
+#define MAPPING_MAX 10
 
 
-#define ROTARY_PIN 14
+static const char* mapping_file = "/mapping.txt";
+static const int rotary_pin = 14;
 
 // I2S configuration
 #define SAMPLE_RATE     44100
@@ -45,6 +49,6 @@ static const char* mqtt_topic_points = MQTT_TOPIC_POINTS;
 #define I2S_WS_IO       12    // Word Select
 #define I2S_DATA_IO     32  // Data Output
 
-#define SD_CS_PIN 5 // Define the chip select (CS) pin for the SD card module
+#define SD_CS_PIN 5 
 
 #endif // CONFIG_H

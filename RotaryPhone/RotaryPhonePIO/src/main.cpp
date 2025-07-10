@@ -12,10 +12,15 @@
 #include "config.h"
 #include "communication_manager.h"
 #include "rotary_phone.h"
-#include "web_server.h"
+#include "file_manager.h"
 
-String phoneNumber = "";
+char phoneNumber[PHONENUMBER_MAX] = "";
+bool active = false;
 
+Mapping mappings[MAPPING_MAX];
+int mappingCount = 0;
+int currentRank = 1;
+int maxRank = 0;
 
 
 void setup() {
@@ -27,9 +32,14 @@ void setup() {
     #if USE_WEBSERVER 
         setup_web_server();
     #endif
-    pinMode(ROTARY_PIN, INPUT_PULLUP); 
-    attachInterrupt(digitalPinToInterrupt(ROTARY_PIN), rotaryInterrupt, RISING);
+    pinMode(rotary_pin, INPUT_PULLUP); 
+    attachInterrupt(digitalPinToInterrupt(rotary_pin), rotaryInterrupt, RISING);
+
+    refreshMappings();
+    
+
 }
+
 
 void loop() {
     loop_communication();
@@ -42,47 +52,55 @@ void loop() {
             digit = 0;
         }
 
-        phoneNumber += String(digit);
+        int len = strlen(phoneNumber);
+        phoneNumber[len] = '0' + digit;
+        phoneNumber[len + 1] = 0;
         Serial.print("Dialed digit: ");
         Serial.println(digit);
 
         lastPulseTime = millis();
     }
 
-    if (phoneNumber.length() > 0 && millis() - lastPulseTime > 3000) {
+    if (strlen(phoneNumber) > 0 && millis() - lastPulseTime > 3000) {
         Serial.print("Complete phone number: ");
         Serial.println(phoneNumber);
 
-        // Load mappings from mapping.txt
-        std::vector<Mapping> mappings = readMappings();
-        for(const auto &mapping : mappings) {
-            Serial.print("Mapping: ");
-            Serial.print(mapping.fileName);
-            Serial.print(" -> ");
-            Serial.println(mapping.phoneNumber);
-            Serial.print("Is solution: ");
-            Serial.println(mapping.isSolution ? "Yes" : "No");
-        }
-
         bool matchFound = false;
-        if (active) {
-            for (const auto &mapping : mappings) {
-                if (phoneNumber == mapping.phoneNumber) {
-                    Serial.println("Correct phone number dialed! Playing sound...");
-                    play_audio(("/" + mapping.fileName).c_str()); 
-                    if (mapping.isSolution) {
+        for (int i=0; i < mappingCount && i < 10; i++) {
+            if (!strcmp(phoneNumber, mappings[i].phoneNumber)) {
+                if (mappings[i].rank == currentRank && active) {
+                    #if DEBUG
+                        Serial.print("Correct phone number dialed: ");
+                        Serial.println(phoneNumber);
+                    #endif
+                    char filePath[64];
+                    snprintf(filePath, sizeof(filePath), "/%s", mappings[i].fileName);
+                    play_audio(filePath); 
+                    if (mappings[i].rank == 1) {
                         publish_done();
-                    } 
+                        currentRank = maxRank;
+                    } else {
+                        currentRank--;
+                    }
                     matchFound = true;
                     break;
+                } else if (mappings[i].rank == 0) {
+                    #if DEBUG
+                        Serial.println("Easter egg found!");
+                    #endif
+                    char filePath[64];
+                    snprintf(filePath, sizeof(filePath), "/%s", mappings[i].fileName);
+                    play_audio(filePath); 
                 }
             }
         }
 
         if (!matchFound) {
-            Serial.println("Incorrect phone number.");
+            #if DEBUG
+                Serial.println("Incorrect phone number.");
+            #endif
         }
 
-        phoneNumber = "";
+        phoneNumber[0] = 0;
     }
 }
