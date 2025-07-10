@@ -21,7 +21,10 @@ void refreshMappings() {
             if (colonIndex) {
                 *colonIndex = '\0';
                 char *remaining = colonIndex + 1;
-
+                int number = atoi(remaining);
+                if (number < 0) {
+                    strcpy(notAvailableFileName, line);
+                };
                 char *rankIndex = strchr(remaining, ',');
                 if (rankIndex) {
                     *rankIndex = '\0';
@@ -31,7 +34,8 @@ void refreshMappings() {
                     }
 
                     strcpy(mappings[mappingCount].fileName, line);
-                    strcpy(mappings[mappingCount].phoneNumber, remaining);
+                    //strcpy(mappings[mappingCount].phoneNumber, remaining);
+                    mappings[mappingCount].phoneNumber = number;
                     mappings[mappingCount].rank = rank;
 
                     #if DEBUG
@@ -81,7 +85,7 @@ void setup_web_server() {
                 int rank = 0;
                 for(int i = 0; i < mappingCount; i++) {
                     if (!strcmp(mappings[i].fileName, file.name())) {
-                        phoneNumber = mappings[i].phoneNumber;
+                        phoneNumber = mappings[i].phoneNumber + " ";
                         rank = mappings[i].rank;
                         break;
                     }

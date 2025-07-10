@@ -1,7 +1,6 @@
 #ifndef ROTARY_PHONE_H
 #define ROTARY_PHONE_H
 
-
 #include <SD.h>
 #include "driver/i2s.h"
 #include "config.h"

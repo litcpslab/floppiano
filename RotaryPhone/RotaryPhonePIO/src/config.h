@@ -32,15 +32,20 @@ static const char* mqtt_topic_points = MQTT_TOPIC_POINTS;
 */
 #define DEBUG (1)
 
+/*
+ * Enable or disables the web server for puzzle configuration.
+*/
 #define USE_WEBSERVER (1)
 
 #define AUDIOFILENAME_MAX 32
 #define PHONENUMBER_MAX 16
 #define MAPPING_MAX 10
 
-
 static const char* mapping_file = "/mapping.txt";
 static const int rotary_pin = 14;
+
+
+static const float volume = 0.5;
 
 // I2S configuration
 #define SAMPLE_RATE     44100

@@ -14,13 +14,14 @@
 #include "rotary_phone.h"
 #include "file_manager.h"
 
-char phoneNumber[PHONENUMBER_MAX] = "";
+int phoneNumber = 0;
 bool active = false;
 
 Mapping mappings[MAPPING_MAX];
 int mappingCount = 0;
 int currentRank = 1;
 int maxRank = 0;
+char notAvailableFileName[AUDIOFILENAME_MAX];
 
 
 void setup() {
@@ -52,26 +53,25 @@ void loop() {
             digit = 0;
         }
 
-        int len = strlen(phoneNumber);
-        phoneNumber[len] = '0' + digit;
-        phoneNumber[len + 1] = 0;
+        phoneNumber = phoneNumber * 10 + digit;
         Serial.print("Dialed digit: ");
         Serial.println(digit);
 
         lastPulseTime = millis();
     }
 
-    if (strlen(phoneNumber) > 0 && millis() - lastPulseTime > 3000) {
-        Serial.print("Complete phone number: ");
-        Serial.println(phoneNumber);
+    if (phoneNumber > 0 && millis() - lastPulseTime > 3000) {
+        #if DEBUG
+            Serial.print("Complete phone number: ");
+            Serial.println(phoneNumber);
+        #endif
 
         bool matchFound = false;
         for (int i=0; i < mappingCount && i < 10; i++) {
-            if (!strcmp(phoneNumber, mappings[i].phoneNumber)) {
+            if (phoneNumber == mappings[i].phoneNumber) {
                 if (mappings[i].rank == currentRank && active) {
                     #if DEBUG
                         Serial.print("Correct phone number dialed: ");
-                        Serial.println(phoneNumber);
                     #endif
                     char filePath[64];
                     snprintf(filePath, sizeof(filePath), "/%s", mappings[i].fileName);
@@ -101,6 +101,6 @@ void loop() {
             #endif
         }
 
-        phoneNumber[0] = 0;
+        phoneNumber = 0;
     }
 }
