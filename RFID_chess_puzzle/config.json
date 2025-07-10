@@ -1,0 +1,31 @@
+{
+    "name": "The Chess Board",
+    "description": "Find the correct pieces and their positions on the chess board to solve the puzzle.",
+    "points": 100,
+    "hints": [
+        {
+            "name": "First Hint",
+            "text": "It seems like there are multiple ways to find a solution. Do not only look at the text. What else can you see on the paper?",
+            "points": 10
+        },
+        {
+            "name": "Second Hint",
+            "text": "The chess pieces needed are a knight(horse) and a rook(tower). You should also pay attention to the bold words in the riddle. One hides only the letter the other one does hide the whole position",
+            "points": 10
+        },
+        {
+            "name": "Third Hint",
+            "text": "For the symbols. For one you have to see what it sounds like when you say it out loud. The other one represents a letter. Also pay attention to the box the symbols are in",
+            "points": 10
+        },
+        {
+            "name": "Solution",
+            "text": "Knight F6, Rook B4",
+            "points": 30
+        }
+    ],
+    "mqtt":
+    {
+        "topic": "rfid/puz2"
+    }
+}
