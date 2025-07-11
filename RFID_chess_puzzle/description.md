@@ -1,8 +1,10 @@
 # RFID Puzzle Game
 
 ## Overview
-This is an ESP32-based puzzle game that requires players to place the correct RFID tags on two sensors in the proper sequence to unlock a box.
+This is an ESP32-based puzzle game that requires players to place the correct RFID tags on two sensors that are hidden below the grid of a chess board to solve the puzzle. To get the correct figure a puzzle (riddle_rfid_puzzle.pdf) has to be solved.
 The puzzle is part of an escape room and therefore communicates via mqtt with a basestation to sent a confirmation once the puzzle has been solved. 
+In MQTT mode the puzzle only functions after it has succesfully connected to the network! Without succesful connection the puzzle does not register the nfc tags that are placed on the sensor!
+There is also the possibility to run the puzzle in standalone mode without it having to connect to the network (See below Operating modes). In this mode the puzzle can be solved without it having to connect to a network. 
 
 ## Hardware Components
 - **ESP32 microcontroller** - Main control unit
@@ -21,18 +23,26 @@ The puzzle requires players to:
 2. Simultaneously place an RFID tag with value '2' on the second sensor
 3. When both correct tags are detected, the relay activates to unlock the mechanism
 
+## Puzzle Solution 
+The goal is to find the correct figure and the coordinates. The coordinates are also printed on the outside of the chess field and are numbered 1-8 and A-H. 
+
+There are multiple ways to get the coordinates. First you can look at the symbols at the top and bottom of the page The first symbol is a bee. This word also sounds like the letter "B". Furthermore, the bee is inside a square, which has "4" edges. In the text you can see the first word, which is also printed in bold letters "before" also sounds like "B4" if spoken aloud. Therefore the first coordinate is B4. The figure is the white Knight, which has the horse a symbol which is known from the game chess. 
+
+For the second coordinates you can look at the symbol on the bottom, which depicts the musical note "F" inside a hexagon, which has 6 edges. Also the first letter of the second bold word is an F. In the text the passage "with this one figure and the fingers on one hand" hints at having to add 1+5=6 to finally arrive at "F6" for the second coordinates. The dark tower mentioned in the text hints at the chess piece black rook. 
+Therefore the solution is: White Knight to F6 and Black Rook to B4
 ## Operating Modes
 
 ### MQTT Mode (Networked)
+- **IMPORTANT**: If the ESP cant connect to the network the puzzle cant be solved because inputs on the sensor wont be registered! If you want to setup the puzzle without the network use standalone mode!
 - **Activation**: Connect pin D22 to GND during startup
 - **Features**:
-  - Connects to WiFi network
-  - Communicates with MQTT broker
+  - Connects to WiFi network (settings in config.h)
+  - Communicates with MQTT broker (settings in config.h)
   - Waits for "initialize" message before allowing completion (finished message is only sent if initialize was received)
   - LED of ESP blinks once during startup to indicate MQTT mode
 
 ### Standalone Mode
-- **Activation**: Connect Pin D22 to 3V3 or Vin during startup
+- **Activation**: Connect Pin D22 to 3V3 or Vin during startup. I recommend to use the DC+ and DC- ports of the relay terminal for connecting the pin D22 to Vdd or GND because the screw terminals on the ESP are already were crowded (see picture rfid_circuit_setup.png). 
 - **Features**:
   - No network setup or communication takes place 
   - Puzzle functions independently
