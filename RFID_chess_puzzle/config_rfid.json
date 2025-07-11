@@ -15,12 +15,12 @@
         },
         {
             "name": "Third Hint",
-            "text": "For the symbols. For one you have to see what it sounds like when you say it out loud. The other one represents a letter. Also pay attention to the box the symbols are in",
+            "text": "Look at both bold words in the riddle. One you have to see what it sounds like when you say it out loud. For the other one look at the first Letter and see if you can find a number in the following lines. Also pay attention to the box the symbols are in. Remember there are multiple ways to find the solution.",
             "points": 10
         },
         {
             "name": "Solution",
-            "text": "Knight F6, Rook B4",
+            "text": "White Knight F6, Black Rook B4",
             "points": 30
         }
     ],

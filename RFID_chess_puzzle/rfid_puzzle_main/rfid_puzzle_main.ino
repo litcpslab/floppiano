@@ -17,7 +17,19 @@ Adafruit_PN532 nfc2(PN5322_SS);
 
 unsigned long lastCheck = 0;
 const unsigned long checkInterval = 200; // check 5 times per second
+
+// Lock timing variables
+unsigned long lockOpenTime = 0;
+const unsigned long lockOpenDuration = 10000; // 10 seconds in milliseconds
+bool relayState = LOW;
 bool mqtt_enabled = true; // Set to false if MQTT is not used
+
+// Variables to track sensor state changes
+bool lastS1Detected = false;
+bool lastS2Detected = false;
+uint8_t lastSensor1Val = 0;
+uint8_t lastSensor2Val = 0;
+bool sensorStateChanged = false;
 
 void setup() {
     Serial.begin(115200);
@@ -88,10 +100,28 @@ bool read_sensor(Adafruit_PN532 &nfc, uint8_t &sensor_val, const char* sensor_na
     return false;
 }
 
+void closeLock() {
+    if (relayState == HIGH) {
+        relayState = LOW;
+        digitalWrite(RELAY_PIN, LOW);
+        Serial.println("Relay OFF (LOCKED) - Auto-close or wrong values detected");
+        lockOpenTime = 0; // Reset timer
+        sensorStateChanged = false; // Reset state change flag
+    }
+}
+
 void loop() {
     if (mqtt_enabled) {
         loop_communication();
     }
+    
+    // Check for auto-close timeout
+    if (relayState == HIGH && lockOpenTime > 0 && 
+        (millis() - lockOpenTime >= lockOpenDuration)) {
+        Serial.println("Lock auto-closing after 10 seconds");
+        closeLock();
+    }
+    
     if (millis() - lastCheck >= checkInterval) {
         lastCheck = millis();
 
@@ -101,16 +131,39 @@ void loop() {
         bool s1_detected = read_sensor(nfc1, sensor1_val, "rfid_1");
         bool s2_detected = read_sensor(nfc2, sensor2_val, "rfid_2");
 
-        static bool relayState = LOW;
+        // Check if sensor state has changed
+        if (s1_detected != lastS1Detected || s2_detected != lastS2Detected ||
+            sensor1_val != lastSensor1Val || sensor2_val != lastSensor2Val) {
+            sensorStateChanged = true;
+            Serial.println("Sensor state changed - reset allowed");
+        }
+
+        // Update last sensor states
+        lastS1Detected = s1_detected;
+        lastS2Detected = s2_detected;
+        lastSensor1Val = sensor1_val;
+        lastSensor2Val = sensor2_val;
+
         bool lock_open = (s1_detected && sensor1_val == '1') && (s2_detected && sensor2_val == '2');
 
-        if (lock_open != relayState) {
-            relayState = lock_open;
-            digitalWrite(RELAY_PIN, relayState ? HIGH : LOW);
-            Serial.printf("Relay %s\n", relayState ? "ON (OPEN)" : "OFF (LOCKED)");
-            if (lock_open && can_send_finished_message() && mqtt_enabled) {
-                client.publish(mqtt_topic_general, "finished"); // only publish if ack received before 
+        // Handle lock opening - only if sensor state has changed and lock is currently closed
+        if (lock_open && relayState == LOW && sensorStateChanged) {
+            relayState = HIGH;
+            digitalWrite(RELAY_PIN, HIGH);
+            lockOpenTime = millis(); // Start the timer
+            sensorStateChanged = false; // Reset the change flag
+            Serial.println("Relay ON (OPEN) - Correct values detected");
+            
+            // Send finished message if conditions are met
+            if (can_send_finished_message() && mqtt_enabled) {
+                client.publish(mqtt_topic_general, "finished");
+                Serial.println("Finished message sent");
             }
+        }
+        // Handle lock closing due to wrong values
+        else if (!lock_open && relayState == HIGH) {
+            Serial.println("Wrong values detected while lock was open");
+            closeLock();
         }
     }
 }
