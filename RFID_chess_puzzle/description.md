@@ -5,6 +5,7 @@ This is an ESP32-based puzzle game that requires players to place the correct RF
 The puzzle is part of an escape room and therefore communicates via mqtt with a basestation to sent a confirmation once the puzzle has been solved. 
 In MQTT mode the puzzle only functions after it has succesfully connected to the network! Without succesful connection the puzzle does not register the nfc tags that are placed on the sensor!
 There is also the possibility to run the puzzle in standalone mode without it having to connect to the network (See below Operating modes). In this mode the puzzle can be solved without it having to connect to a network. 
+Also important the lock will close again 10 seconds after it has been solved to prevent it from getting too hot. To open the lock again the player has to remove at least one figure and place it on the correct tile again!
 
 ## Hardware Components
 - **ESP32 microcontroller** - Main control unit
@@ -21,7 +22,7 @@ Programmed with specific values ('1' and '2'). Values are written with an nfc ca
 The puzzle requires players to:
 1. Place an RFID tag with value '1' on the first sensor
 2. Simultaneously place an RFID tag with value '2' on the second sensor
-3. When both correct tags are detected, the relay activates to unlock the mechanism
+3. When both correct tags are detected, the relay activates to unlock the mechanism for 10 seconds (lock is closed again to prevent it from getting too hot)
 
 ## Puzzle Solution 
 The goal is to find the correct figure and the coordinates. The coordinates are also printed on the outside of the chess field and are numbered 1-8 and A-H. 
@@ -31,6 +32,7 @@ There are multiple ways to get the coordinates. First you can look at the symbol
 For the second coordinates you can look at the symbol on the bottom, which depicts the musical note "F" inside a hexagon, which has 6 edges. Also the first letter of the second bold word is an F. In the text the passage "with this one figure and the fingers on one hand" hints at having to add 1+5=6 to finally arrive at "F6" for the second coordinates. The dark tower mentioned in the text hints at the chess piece black rook. 
 Therefore the solution is: White Knight to F6 and Black Rook to B4
 ## Operating Modes
+For choosing the operating mode the Pin D22 is used. It is set either to HIGH or LOW during startupt to choose if networking or no networking (Standalone mode) is used. Standalone mode the puzzle does not need a network to function. I recommend to use the DC+ and DC- ports of the relay terminal for connecting the pin D22 to Vdd or GND because the screw terminals on the ESP are already very crowded (see picture rfid_circuit_setup.png). 
 
 ### MQTT Mode (Networked)
 - **IMPORTANT**: If the ESP cant connect to the network the puzzle cant be solved because inputs on the sensor wont be registered! If you want to setup the puzzle without the network use standalone mode!
@@ -42,7 +44,7 @@ Therefore the solution is: White Knight to F6 and Black Rook to B4
   - LED of ESP blinks once during startup to indicate MQTT mode
 
 ### Standalone Mode
-- **Activation**: Connect Pin D22 to 3V3 or Vin during startup. I recommend to use the DC+ and DC- ports of the relay terminal for connecting the pin D22 to Vdd or GND because the screw terminals on the ESP are already were crowded (see picture rfid_circuit_setup.png). 
+- **Activation**: Connect Pin D22 to 3V3 or Vin during startup.
 - **Features**:
   - No network setup or communication takes place 
   - Puzzle functions independently
@@ -99,7 +101,7 @@ LED         = 2     (Mode Indicator)
 ### Software Configuration
 1. Update WiFi credentials in `config.h`
 2. Configure MQTT broker settings in `config.h`
-3. Upload code to ESP32
+3. Upload code to ESP32 (Arduino IDE was used!)
 4. Monitor serial output for status messages
 
 ### RFID Tag Programming

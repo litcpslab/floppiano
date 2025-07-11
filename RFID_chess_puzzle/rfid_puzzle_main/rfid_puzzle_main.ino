@@ -16,13 +16,13 @@ Adafruit_PN532 nfc1(PN5321_SS);
 Adafruit_PN532 nfc2(PN5322_SS);
 
 unsigned long lastCheck = 0;
-const unsigned long checkInterval = 200; // check 5 times per second
+const unsigned long checkInterval = 200; // check sensors 5 times per second (200 ms interval)
 
 // Lock timing variables
 unsigned long lockOpenTime = 0;
-const unsigned long lockOpenDuration = 10000; // 10 seconds in milliseconds
+const unsigned long lockOpenDuration = 10000; // lock closes again after 10 seconds if not reset
 bool relayState = LOW;
-bool mqtt_enabled = true; // Set to false if MQTT is not used
+bool mqtt_enabled = true; // is set to false if MODE_SELECT_PIN is HIGH
 
 // Variables to track sensor state changes
 bool lastS1Detected = false;
@@ -66,7 +66,7 @@ void setup() {
     Serial.println("Both PN532 sensors initialized!");
 
     pinMode(LED,OUTPUT);
-    // blink once mqtt enabled 3 if not
+    // blink one time -> mqtt enabled, 3 times -> standalone mode
     if (mqtt_enabled) { 
         blink_led(1, 100); 
     } else { 
@@ -74,6 +74,7 @@ void setup() {
     }
 }
 
+// simple function to blink the LED after setup has finished
 void blink_led(int times, int delay_time) {
     for (int i = 0; i < times; i++) {
         digitalWrite(LED, HIGH);
@@ -83,6 +84,8 @@ void blink_led(int times, int delay_time) {
     }
 }
 
+// reads the sensor value from the RFID tag and prints it to the serial monitor
+// returns true if a tag was detected, false otherwise
 bool read_sensor(Adafruit_PN532 &nfc, uint8_t &sensor_val, const char* sensor_name) {
     uint8_t uid[7];
     uint8_t uidLength;
@@ -100,6 +103,7 @@ bool read_sensor(Adafruit_PN532 &nfc, uint8_t &sensor_val, const char* sensor_na
     return false;
 }
 
+// Closes the lock by turning off the relay and resets state variables
 void closeLock() {
     if (relayState == HIGH) {
         relayState = LOW;
@@ -115,13 +119,14 @@ void loop() {
         loop_communication();
     }
     
-    // Check for auto-close timeout
+    // Check for auto-close timeout: 10 seconds have passed since the lock was opened
     if (relayState == HIGH && lockOpenTime > 0 && 
         (millis() - lockOpenTime >= lockOpenDuration)) {
         Serial.println("Lock auto-closing after 10 seconds");
         closeLock();
     }
     
+    // check sensors every checkInterval milliseconds
     if (millis() - lastCheck >= checkInterval) {
         lastCheck = millis();
 
@@ -131,11 +136,11 @@ void loop() {
         bool s1_detected = read_sensor(nfc1, sensor1_val, "rfid_1");
         bool s2_detected = read_sensor(nfc2, sensor2_val, "rfid_2");
 
-        // Check if sensor state has changed
+        // Check if sensor state has changed to avoid immediate re-triggering
+        // after lock has been closed because of timeout it should not be retriggered if the figures are still on the correct position
         if (s1_detected != lastS1Detected || s2_detected != lastS2Detected ||
             sensor1_val != lastSensor1Val || sensor2_val != lastSensor2Val) {
             sensorStateChanged = true;
-            Serial.println("Sensor state changed - reset allowed");
         }
 
         // Update last sensor states
@@ -157,12 +162,9 @@ void loop() {
             // Send finished message if conditions are met
             if (can_send_finished_message() && mqtt_enabled) {
                 client.publish(mqtt_topic_general, "finished");
-                Serial.println("Finished message sent");
             }
         }
-        // Handle lock closing due to wrong values
         else if (!lock_open && relayState == HIGH) {
-            Serial.println("Wrong values detected while lock was open");
             closeLock();
         }
     }
