@@ -99,7 +99,8 @@ Program RFID tags with the required values:
 - Tag 2: Write '2' to page 6, byte 1
 
 ## Usage Flow
-
+Note: the relay closes automatically 10 seconds after the lock has been opened to prevent it from getting too hot.
+If you want to open the lock again. you have to remove the figures and place them again on the correct position.
 ### MQTT Mode
 1. Power on ESP32 with D22 connected to 3V3
 2. Device connects to WiFi and MQTT broker
