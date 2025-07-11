@@ -114,7 +114,7 @@ Program RFID tags with the required values:
 Note: the relay closes automatically 10 seconds after the lock has been opened to prevent it from getting too hot.
 If you want to open the lock again. you have to remove the figures and place them again on the correct position.
 ### MQTT Mode
-1. Power on ESP32 with D22 connected to 3V3
+1. Power on ESP32 with D22 connected to GND
 2. Device connects to WiFi and MQTT broker
 3. Send "initialize" message to enable puzzle
 4. Place correct RFID tags on both sensors
@@ -122,7 +122,7 @@ If you want to open the lock again. you have to remove the figures and place the
 6. Box can now be opened 
 
 ### Standalone Mode
-1. Power on ESP32 with D22 unconnected
+1. Power on ESP32 with D22 connected to Vin or 3V3
 2. Device operates without network connectivity
 3. Place correct RFID tags on both sensors
 4. Relay activates immediately
