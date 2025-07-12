@@ -75,4 +75,4 @@ In the folder `./Classes` several helper classes are defined like the structure 
 
 # Change Story
 
-To quickly change the story which is shown int the start screen, change the text in the `story`variable in the top of `StartScreen.py`.
+To quickly change the story which is shown in the start screen, change the text in the `story`variable in the top of `StartScreen.py`.
