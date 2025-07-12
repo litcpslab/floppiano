@@ -5,6 +5,9 @@ from pathlib import Path
 from .Hint import Hint
 
 class Puzzle():
+    """
+    Class representing a Puzzle
+    """
     def __init__(self):
         # From JSON
         self.name: str = ""
@@ -12,18 +15,21 @@ class Puzzle():
         self.points: int = 0
         self.hints: List[Hint] = []
         self.mqttTopic: str = ""
-
         self.revealAfterFinish: str | None = None
 
         # Internal states
         self.isCompleted: bool = False
         self.isInitialized: bool = False
         self.isSelectedForPlay: bool = False
+        self.nextHint = 1
 
         self.mqttTopicGeneral: str = ""
         self.mqttTopicPoints: str = ""
     
 def checkAllPuzzlesCompleted(puzzleList: List[Puzzle]):
+    """
+    Pass a lit of puzzles and returns true if every puzzle is completed
+    """
     puzzle: Puzzle
     for puzzle in puzzleList:
         if not puzzle.isCompleted:
@@ -31,6 +37,9 @@ def checkAllPuzzlesCompleted(puzzleList: List[Puzzle]):
     return True
 
 def checkAllPuzzlesInitialized(puzzleList: List[Puzzle]):
+    """
+    Pass a lit of puzzles and returns true if every puzzle is initialized
+    """
     puzzle: Puzzle
     for puzzle in puzzleList:
         if not puzzle.isInitialized:
@@ -38,6 +47,9 @@ def checkAllPuzzlesInitialized(puzzleList: List[Puzzle]):
     return True
 
 def getPuzzleFromFile(filePath: Path):
+    """
+    Provide a file path to a json file and returns the data from the json file as a puzzle object 
+    """
     data: dict
     with open(filePath) as f:
         data = json.load(f)
@@ -63,7 +75,10 @@ def getPuzzleFromFile(filePath: Path):
         p.hints.append(h)
     return p
 
-def getAllPuzzles(folderPath: Path):
+def getAllPuzzlesFromFolder(folderPath: Path):
+    """
+    Provide a folder path where only json files are located and returns the data from the json files as a list of puzzles 
+    """
     if not folderPath.exists():
         raise Exception(f"Path '{folderPath.absolute()}' does not exist")
     puzzles = []

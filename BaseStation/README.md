@@ -1,3 +1,6 @@
+# How the escape room works
+The base station provides the story and the functionalities to view the description of the puzzles and to by hints. Hints can be bought using points. After the time runs out, or when every puzzle is finished, the escape room ends and the player is granted the final points.
+
 # Base Station
 
 This is a python project which implements the UI for the escape room.
@@ -15,15 +18,15 @@ For creating the virtual environment please note that depending on your python i
 ```
 python3 -m venv env
 source env/bin/activate
-pip install -r reqUIrements_MacOs.txt
+pip install -r requirements_MacOs.txt
 ```
 
 ## Installation Raspberry Pi Os
-
+Because the Raspberry Pi Os does not support the latest PySide 6 libraries a seperate requirements file is needed.
 ```
 python3 -m venv env
 source env/bin/activate
-pip install -r reqUIrements_Raspberry.txt
+pip install -r requirements_Raspberry.txt
 ```
 
 ## Runing the application
@@ -69,3 +72,7 @@ This is for debugging and testing purposes, to simulate the communication with t
 ### Helper classes
 
 In the folder `./Classes` several helper classes are defined like the structure of puzzles and hints as well as a logger class and a class for communication via MQTT.
+
+# Change Story
+
+To quickly change the story which is shown int the start screen, change the text in the `story`variable in the top of `StartScreen.py`.

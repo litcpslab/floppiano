@@ -1,4 +1,7 @@
 class Hint():
+    """
+    Class representing a Hint for a Puzzle
+    """
     def __init__(self):
         self.name: str = None
         self.text: str = None

@@ -7,23 +7,41 @@ from .MainScreen import MainScreen
 from Classes.Log import log
 from Classes.Puzzle import Puzzle
 
+story = """
+Prof. L. Toiz took over the lecture for Nonlinear electrical systems (NES) two years ago, since then not a single student passed its crazy difficult final exam. You are a group of students who tried it the fifth time this morning, the last possible time before you would be exmatriculated forever.
+
+You are all sure that you will fail again, as this exam was even more difficult than the previous ones. As a last resort you decide to break into the Professors office to steal your written exams, so that they do not get graded and you can save your otherwise quite successful academic career.
+
+Everyday precisely at 11:40 Prof. L. Toiz leaves his office for lunch and returns at 12:20. At 11:45 you enter the office unnoticed and are welcomed by a messy workplace filled with a vast amount of different embedded devices and gadgets. As soon as you close the door behind you the security system goes active. After rummaging through all the loose papers on the desk, you still could not find your exams, they have to be hidden somewhere else in this room.
+ 
+Your eyes fall upon a strange boxlike contraption with nine numbered buttons on the table. There is also a box with a screen on top that catches your attention. It seems like they are some puzzles, maybe they lead to your exams? 
+
+Can you find them before the Prof. returns...
+"""
+
 class StartScreen(GameWidget):
+    """
+    Class representing the start screen widget, where the puzzles can be selected which are beeing played
+    """
+        
     def __init__(self, puzzles: List[Puzzle]):
+        """
+        Setup the UI and place the widgets on the screen
+        """
         super().__init__()
         self.puzzles = puzzles
 
-        l = QLabel(f"Welcome to the escape of the \n 'Crazy Professor'")
+        l = QLabel(f"Welcome to the escape from the\n'Crazy Professor'")
         l.setStyleSheet(f"font-size: {self.fontSizeLarge}px")
         l.setAlignment(self.alignCenterFlag)
         self.mainLayout.addWidget(l)
 
-        l = QLabel(f"Your task is to complete varios puzzles and escape the labatory of the professor. You can pick which puzzles you wanna play. But be carefull. The more puzzles you play the less time you have for each one. Complete the puzzles to get points. With points you can buy some hints, but they are not cheap. The higher your points are, the better the 'Assosiation of Escapers' will grade you.")
+        l = QLabel(story)
         l.setStyleSheet(f"font-size: {self.fontSizeNormal}px")
         l.setWordWrap(True)
         self.mainLayout.addWidget(l)
 
         self.mainLayout.addStretch()
-
 
         l = QLabel("Select the desired puzzles and then press start")
         self.mainLayout.addWidget(l)
@@ -44,6 +62,9 @@ class StartScreen(GameWidget):
         self.mainLayout.addWidget(b)
     
     def startGame(self):
+        """
+        Creates the main screen object and shows it and changes the isSelectedForPlay field of the selected puzzles
+        """
         c: QCheckBox
         puzzle: Puzzle
         selectedPuzzles: List[Puzzle] = []

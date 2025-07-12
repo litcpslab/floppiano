@@ -9,6 +9,9 @@ from Classes.PointTracker import PointTracker
 
 class FinishScreen(GameWidget):
     def __init__(self, pointTracker: PointTracker, puzzles: List[Puzzle], points, timeLeft):
+        """
+        Setup the UI and place the widgets on the screen
+        """
         super().__init__()
         self.pointTracker = pointTracker
         self.puzzles = puzzles
@@ -30,14 +33,12 @@ class FinishScreen(GameWidget):
         self.completedPuzzlesLabel.setAlignment(self.alignCenterFlag)
         self.completedPuzzlesLabel.setStyleSheet(f"font-size: {self.fontSizeNormal}px")
         self.mainLayout.addWidget(self.completedPuzzlesLabel)
-        
-        #self.mainLayout.addStretch()
 
         plot = self.pointTracker.getPlot()
         plot.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.mainLayout.addWidget(plot)
 
-        self.finalScoreLabel = QLabel(f"Final score: {self.points + self.timeLeft}")
+        self.finalScoreLabel = QLabel(f"Final score: {self.points}")
         self.finalScoreLabel.setAlignment(self.alignCenterFlag)
         self.finalScoreLabel.setStyleSheet(f"font-size: {self.fontSizeLarge}px")
         self.mainLayout.addWidget(self.finalScoreLabel)

@@ -23,6 +23,9 @@ class MatplotlibCanvas(FigureCanvasQTAgg):
         self.setStyleSheet("background: transparent")
 
 class PointTracker():
+    """
+    Class which can be used to track the progress of the game, by remembering the event, the time of the event and the current points
+    """
     def __init__(self):
         self.timestamps = []
         self.points = []
@@ -35,7 +38,12 @@ class PointTracker():
         self.textColor = palette.color(QPalette.ColorRole.WindowText).name()
         self.backgroundColor = palette.color(QPalette.ColorRole.Window).name()
     
-    def setPoints(self, points, event):
+    def setPoints(self, points: int, event: str):
+        """
+        Call setPoints to register a new event
+
+        The time when the event happend will also be remenbered
+        """
         self.timestamps.append(datetime.now())
         self.points.append(points)
         self.events.append(event)
@@ -52,6 +60,9 @@ class PointTracker():
         self.mlptCanvas.draw()
 
     def getPlot(self):
+        """
+        Returns a FigureCanvasQTAgg widget which can be used within an QT application
+        """
         self.mlptCanvas.axes.xaxis.set_major_formatter(self.formatter)
         self.mlptCanvas.axes.set_facecolor('none')
         self.mlptCanvas.axes.tick_params(colors=self.textColor)

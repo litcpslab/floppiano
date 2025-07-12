@@ -14,10 +14,13 @@ from Classes.Puzzle import Puzzle, checkAllPuzzlesCompleted, checkAllPuzzlesInit
 from Classes.Log import log
 from Classes.PointTracker import PointTracker
 
-gameTime = 120
-startPoints = 10
+gameTime = 60*60
+startPoints = 100
 
 class PuzzleInitializeThread(QThread):
+    """
+    Thread which periodically sends initialize messages to the puzzles until stoped via Thread.terminate()
+    """
     def __init__(self, communnicationManager: CommunnicationManager, puzzles: List[Puzzle]):
         super().__init__()
         self.communnicationManager = communnicationManager
@@ -33,13 +36,21 @@ class PuzzleInitializeThread(QThread):
             time.sleep(3)
 
 class MainScreen(GameWidget):
-    timerStartSignal = Signal()
-    timerStopSignal = Signal()
-    showFinishScreenSignal = Signal()
-    setButtonFinishedSignal = Signal(QPushButton, Puzzle)
-    setButtonInitializedSignal = Signal(QPushButton, Puzzle)
+    """
+    Class representing the main screen where the time, the points and the puzzles can be seen
+    """
+
+    # Signals needed to be thread save because the communicationManager runs in a different thread
+    timerStartSignal = Signal() # Connect a function to the signal which will be called when the timer should be started
+    timerStopSignal = Signal() # Connect a function to the signal which will be called when the timer should be stopped
+    showFinishScreenSignal = Signal()  # Connect a function to the signal which will be called when the finish screen should be shown
+    setButtonFinishedSignal = Signal(QPushButton, Puzzle) # Connect a function to the signal which will be called when the button for the puzzle should be deactivated
+    setButtonInitializedSignal = Signal(QPushButton, Puzzle) # Connect a function to the signal which will be called when the button for the puzzle should be activated
 
     def __init__(self, puzzles: List[Puzzle]):
+        """
+        Setup the UI and place the widgets on the screen
+        """
         super().__init__()
 
         self.puzzles = puzzles
@@ -105,6 +116,7 @@ class MainScreen(GameWidget):
         event.accept()
     
     def keyPressEvent(self, event):
+        # Open the debug window if the "d" key is pressed
         if event.key() == Qt.Key.Key_D:
             self.debugScreen.show()
             log("Opening debug widget")
@@ -114,7 +126,10 @@ class MainScreen(GameWidget):
         self.puzzleDetailScreen = PuzzleDetailScreen(puzzle, self)
         self.puzzleDetailScreen.show()
 
-    def setPoints(self, points, event=None):
+    def setPoints(self, points: int, event=None):
+        """
+        Call this function to update the points and to register an event on the pointTracker
+        """
         self.points = points
         
         pointsString = f"{self.points}"
@@ -122,26 +137,40 @@ class MainScreen(GameWidget):
 
         self.pointTracker.setPoints(points, event)
     
-    def addPoints(self, points, event=None):
+    def addPoints(self, points: int, event=None):
+        """
+        Call this function to add points and to register an event on the pointTracker
+        """
         self.setPoints(self.points + points, event)
     
-    def subtractPoints(self, points, event=None):
+    def subtractPoints(self, points: int, event=None):
+        """
+        Call this function to subtract points and to register an event on the pointTracker
+        """
         self.setPoints(self.points - points, event)
     
-    def setTime(self, seconds):
+    def setTime(self, seconds: int):
+        """
+        Call this function to set the remaining time in seconds
+        """
         self.secondsLeft = seconds
 
         timeString = time.strftime('%H:%M:%S', time.gmtime(self.secondsLeft))
         self.timerLabel.setText(timeString)
 
     def updateTime(self):
+        """
+        Function will be called by a timer timeout event to update the remaining time every second
+        """
         self.setTime(self.secondsLeft - 1)
 
         if self.secondsLeft < 0:
             self.showFinishScreen()
-            return
     
     def showFinishScreen(self):
+        """
+        Call this function to show the finish screen and end the escape
+        """
         self.timerStopSignal.emit()
         self.communnicationManager.stop()
         self.close()
@@ -155,6 +184,11 @@ class MainScreen(GameWidget):
     # Be carefull
     # This is executed in another thread
     def onMessage(self, topic: str, payload: str):
+        """
+        Internal function needed for the CommunicationManager
+
+        It receives the messages sent by the puzzles and updates the corresponding UI elements
+        """
         button: QPushButton
         puzzle: Puzzle
         for button, puzzle in self.puzzleButtons:
@@ -189,6 +223,7 @@ class MainScreen(GameWidget):
                 self.timerStartSignal.emit()
                 log("Sending timer start signal")
 
+                # Enable all puzzle buttons when every puzzle is initialized
                 for button, _ in self.puzzleButtons:
                     button.setEnabled(True)
 
@@ -198,10 +233,16 @@ class MainScreen(GameWidget):
             self.showFinishScreenSignal.emit()
     
     def setButtonInitialized(self, button: QPushButton, puzzle: Puzzle):
+        """
+        Internal function to set the text of the button
+        """
         log(f"Initialization done: '{puzzle.name}'")
         button.setText(puzzle.name)
 
     def setButtonFinished(self, button: QPushButton, puzzle: Puzzle):
+        """
+        Internal function to set the text of the button after a puzzle is finishd or to show the hint the puzzle reveled
+        """
         log(f"Puzzle complete: '{puzzle.name}'")
         self.addPoints(puzzle.points, puzzle.name)
 
@@ -216,6 +257,9 @@ class MainScreen(GameWidget):
     # Be carefull
     # This is executed in another thread
     def onConnect(self, code):
+        """
+        Internal function needed for the CommunicationManager
+        """
         log(f"Connected with result code: {code} to MQTT Broker")
 
         for puzzle in self.puzzles:
@@ -224,4 +268,7 @@ class MainScreen(GameWidget):
     # Be carefull
     # This is executed in another thread
     def onDisconnect(self, code):
+        """
+        Internal function needed for the CommunicationManager
+        """
         log(f"Disconnected with result code: {code}")

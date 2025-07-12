@@ -9,6 +9,9 @@ from Classes.Log import log
 
 class DebugScreen(GameWidget):
     def __init__(self, puzzles: List[Puzzle]):
+        """
+        Setup the UI and place the widgets on the screen
+        """
         super().__init__()
         self.puzzles = puzzles
 
@@ -56,6 +59,9 @@ class DebugScreen(GameWidget):
         self.mainLayout.addWidget(self.logBox)
     
     def initializeAll(self):
+        """
+        Internal function used to send initialize messages for all puzzles
+        """
         for puzzle in self.puzzles:
             self.sendMessage(puzzle.mqttTopicGeneral, initializeMessageAck)
     
@@ -63,6 +69,9 @@ class DebugScreen(GameWidget):
         self.communnicationManager.publish(topic, message)
 
     def onMessage(self, topic: str, payload: str):
+        """
+        Internal function needed for the CommunicationManager
+        """
         groupBox: QGroupBox
         puzzle: Puzzle
         self.logBox.insertItem(0, f"{topic} - {payload}")
@@ -72,9 +81,15 @@ class DebugScreen(GameWidget):
                     groupBox.setEnabled(True)
 
     def onConnect(self, code):
+        """
+        Internal function needed for the CommunicationManager
+        """
         log(f"Connected with result code: {code} to MQTT Broker")
         for puzzle in self.puzzles:
             self.communnicationManager.subscribe(f"{puzzle.mqttTopic}/#")
     
     def onDisconnect(self, code):
+        """
+        Internal function needed for the CommunicationManager
+        """
         log(f"Disconnected with result code: {code}")

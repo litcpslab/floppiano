@@ -10,7 +10,7 @@ class GameWidget(QWidget):
     and a QVBoxLayout is set as the main layout
     """
 
-    gameTitle: str = "The puzzle game"
+    gameTitle: str = "The escape game"
     fontSizeNormal: int = 20
     fontSizeLarge: int = 30
     fontSizeHuge: int = 50
