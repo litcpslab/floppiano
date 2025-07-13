@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLa
 from typing import List
 
 from .GameWidget import GameWidget
-from Classes.CommunicationManager import CommunnicationManager, initializeMessage, initializeMessageAck, finishMessage, finishMessageAck
+from Classes.CommunicationManager import CommunicationManager, initializeMessage, initializeMessageAck, finishMessage, finishMessageAck
 from Classes.Puzzle import Puzzle
 from Classes.Log import log
 
@@ -15,11 +15,11 @@ class DebugScreen(GameWidget):
         super().__init__()
         self.puzzles = puzzles
 
-        self.communnicationManager: CommunnicationManager = CommunnicationManager()
-        self.communnicationManager.onConnect = self.onConnect
-        self.communnicationManager.onDisconnect = self.onDisconnect
-        self.communnicationManager.onMessage = self.onMessage
-        self.communnicationManager.start()
+        self.communicationManager: CommunicationManager = CommunicationManager()
+        self.communicationManager.onConnect = self.onConnect
+        self.communicationManager.onDisconnect = self.onDisconnect
+        self.communicationManager.onMessage = self.onMessage
+        self.communicationManager.start()
 
         # UI
         self.puzzleGroupBoxes = []
@@ -66,7 +66,7 @@ class DebugScreen(GameWidget):
             self.sendMessage(puzzle.mqttTopicGeneral, initializeMessageAck)
     
     def sendMessage(self, topic, message):
-        self.communnicationManager.publish(topic, message)
+        self.communicationManager.publish(topic, message)
 
     def onMessage(self, topic: str, payload: str):
         """
@@ -86,7 +86,7 @@ class DebugScreen(GameWidget):
         """
         log(f"Connected with result code: {code} to MQTT Broker")
         for puzzle in self.puzzles:
-            self.communnicationManager.subscribe(f"{puzzle.mqttTopic}/#")
+            self.communicationManager.subscribe(f"{puzzle.mqttTopic}/#")
     
     def onDisconnect(self, code):
         """

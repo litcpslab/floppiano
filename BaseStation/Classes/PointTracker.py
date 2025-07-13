@@ -9,7 +9,6 @@ import matplotlib.dates as md
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-
 class MatplotlibCanvas(FigureCanvasQTAgg):
     def __init__(self, width, height, dpi):
         fig = Figure(figsize=(width, height), dpi=dpi)

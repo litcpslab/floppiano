@@ -9,7 +9,7 @@ from .PuzzleDetailScreen import PuzzleDetailScreen
 from .FinishScreen import FinishScreen
 from .DebugScreen import DebugScreen
 
-from Classes.CommunicationManager import CommunnicationManager, initializeMessage, initializeMessageAck, finishMessage, finishMessageAck
+from Classes.CommunicationManager import CommunicationManager, initializeMessage, initializeMessageAck, finishMessage, finishMessageAck
 from Classes.Puzzle import Puzzle, checkAllPuzzlesCompleted, checkAllPuzzlesInitialized
 from Classes.Log import log
 from Classes.PointTracker import PointTracker
@@ -19,11 +19,11 @@ startPoints = 100
 
 class PuzzleInitializeThread(QThread):
     """
-    Thread which periodically sends initialize messages to the puzzles until stoped via Thread.terminate()
+    Thread which periodically sends initialize messages to the puzzles until stopped via Thread.terminate()
     """
-    def __init__(self, communnicationManager: CommunnicationManager, puzzles: List[Puzzle]):
+    def __init__(self, communicationManager: CommunicationManager, puzzles: List[Puzzle]):
         super().__init__()
-        self.communnicationManager = communnicationManager
+        self.communicationManager = communicationManager
         self.puzzles = puzzles
     
     def run(self):
@@ -31,7 +31,7 @@ class PuzzleInitializeThread(QThread):
             for puzzle in self.puzzles:
                 if not puzzle.isInitialized:
                     log(f"Sending activation message to: '{puzzle.name}'")
-                    self.communnicationManager.publish(puzzle.mqttTopicGeneral, initializeMessage)
+                    self.communicationManager.publish(puzzle.mqttTopicGeneral, initializeMessage)
                     time.sleep(0.5)
             time.sleep(3)
 
@@ -58,14 +58,14 @@ class MainScreen(GameWidget):
         self.debugScreen = DebugScreen(self.puzzles)
         self.debugScreen.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
 
-        self.communnicationManager: CommunnicationManager = CommunnicationManager()
-        self.communnicationManager.onConnect = self.onConnect
-        self.communnicationManager.onDisconnect = self.onDisconnect
-        self.communnicationManager.onMessage = self.onMessage
+        self.communicationManager: CommunicationManager = CommunicationManager()
+        self.communicationManager.onConnect = self.onConnect
+        self.communicationManager.onDisconnect = self.onDisconnect
+        self.communicationManager.onMessage = self.onMessage
 
         self.pointTracker = PointTracker()
 
-        self.puzzleInitializeThread: PuzzleInitializeThread = PuzzleInitializeThread(self.communnicationManager, self.puzzles)
+        self.puzzleInitializeThread: PuzzleInitializeThread = PuzzleInitializeThread(self.communicationManager, self.puzzles)
         self.allInitialized: bool = False
         self.secondsLeft: int = gameTime
         self.points: int = 0
@@ -108,7 +108,7 @@ class MainScreen(GameWidget):
             self.mainLayout.addWidget(b)
 
     def showEvent(self, event):
-        self.communnicationManager.start()
+        self.communicationManager.start()
         self.setTime(self.secondsLeft)
         self.setPoints(startPoints, "Start")
         self.puzzleInitializeThread.start()
@@ -172,7 +172,7 @@ class MainScreen(GameWidget):
         Call this function to show the finish screen and end the escape
         """
         self.timerStopSignal.emit()
-        self.communnicationManager.stop()
+        self.communicationManager.stop()
         self.close()
 
         if self.secondsLeft < 0:
@@ -201,7 +201,7 @@ class MainScreen(GameWidget):
                         puzzle.isInitialized = True
 
                 elif payload == finishMessage:
-                    self.communnicationManager.publish(puzzle.mqttTopicGeneral, finishMessageAck)
+                    self.communicationManager.publish(puzzle.mqttTopicGeneral, finishMessageAck)
                     if not puzzle.isCompleted and self.allInitialized:
                         # Signals for thread safety because layout can be changed here
                         self.setButtonFinishedSignal.emit(button, puzzle)
@@ -263,7 +263,7 @@ class MainScreen(GameWidget):
         log(f"Connected with result code: {code} to MQTT Broker")
 
         for puzzle in self.puzzles:
-            self.communnicationManager.subscribe(f"{puzzle.mqttTopic}/#")
+            self.communicationManager.subscribe(f"{puzzle.mqttTopic}/#")
     
     # Be carefull
     # This is executed in another thread

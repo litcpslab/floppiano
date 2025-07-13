@@ -7,7 +7,7 @@ initializeMessageAck: str = "initialize_ack"
 finishMessage: str = "finished"
 finishMessageAck: str= "finished_ack"
 
-class CommunnicationManager():
+class CommunicationManager():
     """
     Class used for communication with the puzzles via MQTT
 
@@ -18,7 +18,7 @@ class CommunnicationManager():
     will be called when the client connects/disconnects to the broker, or a message is received
 
     Usage:
-        com: CommunnicationManager = CommunnicationManager()
+        com: CommunicationManager = CommunicationManager()
         com.onConnect = self.onConnect
         com.onDisconnect = lambda code: print(f"{code}")
         com.onMessage = lambda topic, msg: print(f"{topic}: {msg}")

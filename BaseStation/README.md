@@ -29,7 +29,7 @@ source env/bin/activate
 pip install -r requirements_Raspberry.txt
 ```
 
-## Runing the application
+## Running the application
 
 For running the application navigate to the folder where `main.py` is located. Then activate the virtual environment via `source env/bin/activate`. After that just run the file via `python main.py`.
 
@@ -55,11 +55,11 @@ After each start of the application, a log file (`log.txt`) is created, where th
 ### UI files
 
 All files which are responsible for showing the UI on the screen, are located in `./Widgets`.
-The `GameWidget` represents a base class, which all windows will inerite from, where the game title and the general layout of the UI is set
+The `GameWidget` represents a base class, which all windows will inherit from, where the game title and the general layout of the UI are set.
 
 There are 5 different screens available
 1. StartScreen
-Here the user can select which puzzles to play and gets an explanation how the escape room wors
+Here the user can select which puzzles to play and gets an explanation how the escape room works
 1. MainScreen
 Here the remaining time as well as the points are displayed. By clicking on a puzzle the PuzzleDetailScreen will open
 1. PuzzleDetailScreen
