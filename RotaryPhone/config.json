@@ -1,16 +1,21 @@
 {
     "name": "Rotary Phone",
-    "description": "",
+    "description": "In this puzzle you have to dial the right telephone numbers.",
     "points": 100,
     "hints": [
         {
-            "name": "Helpline",
-            "text": "Call the number for hints: ...",
+            "name": "Tip 1",
+            "text": "Call the security company: 732 6832",
+            "points": 10
+        },
+        {
+            "name": "Tip 2",
+            "text": "Call the number for the technicians phone extention: 732 6832 13",
             "points": 10
         },
         {
             "name": "Solution",
-            "text": "...",
+            "text": "Call the technician: 732 6832 56",
             "points": 80
         }
     ],

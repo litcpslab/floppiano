@@ -22,9 +22,11 @@ void refreshMappings() {
                 *colonIndex = '\0';
                 char *remaining = colonIndex + 1;
                 int number = atoi(remaining);
-                if (number < 0) {
+                if (number == -1) {
                     strcpy(notAvailableFileName, line);
-                };
+                } else if (number == -2) {
+                    strcpy(noNumberFileName, line);
+                }
                 char *rankIndex = strchr(remaining, ',');
                 if (rankIndex) {
                     *rankIndex = '\0';
@@ -34,7 +36,6 @@ void refreshMappings() {
                     }
 
                     strcpy(mappings[mappingCount].fileName, line);
-                    //strcpy(mappings[mappingCount].phoneNumber, remaining);
                     mappings[mappingCount].phoneNumber = number;
                     mappings[mappingCount].rank = rank;
 
@@ -51,9 +52,14 @@ void refreshMappings() {
                 }
             }
         }
+        #if DEBUG
+            Serial.printf("Total mappings: %d, Max rank: %d\n", mappingCount, maxRank);
+        #endif
         mappingFile.close();
     } else {
-        Serial.println("Failed to open mapping file");
+        #if DEBUG
+            Serial.println("Failed to open mapping file");
+        #endif
     }
 }
 
@@ -66,7 +72,9 @@ void setup_web_server() {
 
         File indexFile = SD.open("/index.html", FILE_READ);
         if (!indexFile) {
-            Serial.println("index.html file not available");
+            #if DEBUG
+                Serial.println("index.html file not available");
+            #endif
             String fallbackHtml = "<html><body><h1>Default Page</h1><p>The index.html file is missing.</p></body></html>";
             request->send(200, "text/html", fallbackHtml);
             return;
@@ -85,7 +93,7 @@ void setup_web_server() {
                 int rank = 0;
                 for(int i = 0; i < mappingCount; i++) {
                     if (!strcmp(mappings[i].fileName, file.name())) {
-                        phoneNumber = mappings[i].phoneNumber + " ";
+                        phoneNumber = String(mappings[i].phoneNumber);
                         rank = mappings[i].rank;
                         break;
                     }
@@ -119,7 +127,9 @@ void setup_web_server() {
     }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
         if (!index) {
             if (!filename.endsWith(".wav")) {
-                Serial.printf("Invalid file type: %s\n", filename.c_str());
+                #if DEBUG
+                    Serial.printf("Invalid file type: %s\n", filename.c_str());
+                #endif
                 request->send(400, "text/plain", "Only .wav files are allowed");
                 return;
             }
@@ -130,7 +140,9 @@ void setup_web_server() {
             request->_tempFile.write(data, len);
         }
         if (final) {
-            Serial.printf("UploadEnd: %s, %u bytes\n", filename.c_str(), index + len);
+            #if DEBUG
+                Serial.printf("UploadEnd: %s, %u bytes\n", filename.c_str(), index + len);
+            #endif
             if (request->_tempFile) {
                 request->_tempFile.close();
             }
@@ -168,14 +180,18 @@ void setup_web_server() {
         #endif
         if (request->hasParam("file", true)) {
             String file = request->getParam("file", true)->value();
-            Serial.printf("Deleting file: %s\n", file.c_str());
+            #if DEBUG
+                Serial.printf("Deleting file: %s\n", file.c_str());
+            #endif
             if (SD.remove("/" + file)) {
                 request->send(200, "text/plain", "File deleted successfully");
             } else {
                 request->send(500, "text/plain", "Failed to delete file");
             }
         } else {
-            Serial.println("Missing 'file' parameter in request");
+            #if DEBUG
+                Serial.println("Missing 'file' parameter in request");
+            #endif
             request->send(400, "text/plain", "Invalid parameters");
         }
     });

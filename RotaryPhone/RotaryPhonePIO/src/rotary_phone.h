@@ -5,7 +5,6 @@
 #include "driver/i2s.h"
 #include "config.h"
 
-// WAV file header structure
 struct WAVHeader {
     char riff[4];
     uint32_t fileSize;

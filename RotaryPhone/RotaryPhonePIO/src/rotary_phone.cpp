@@ -112,14 +112,15 @@ void play_audio(const char* file_path) {
 
     // Update I2S sample rate if needed
     if (header.sampleRate != SAMPLE_RATE) {
-        Serial.printf("Adjusting sample rate to %d Hz\n", header.sampleRate);
-        i2s_set_sample_rates(I2S_NUM, header.sampleRate);
+        Serial.println("Only 44.1kHz supported");
+        audioFile.close();
+        return;
     }
 
-    Serial.println("Starting playback...");
+    #if DEBUG
+        Serial.println("Starting playback...");
+    #endif
 
-    // Volume factor (0.0 = mute, 1.0 = full volume)
-    float volume = 0.5; // Adjust this value to set the desired volume
 
     // Play audio data
     uint8_t buffer[1024];
@@ -141,25 +142,33 @@ void play_audio(const char* file_path) {
             esp_err_t result = i2s_write(I2S_NUM, buffer, bytesRead, &bytesWritten, pdMS_TO_TICKS(1000));
 
             if (result != ESP_OK) {
-                Serial.printf("I2S write error: %d\n", result);
+                #if DEBUG
+                    Serial.printf("I2S write error: %d\n", result);
+                #endif
                 break;
             }
 
             totalBytesRead += bytesRead;
 
             // Print progress every 10%
-            if (header.dataSize > 0 && totalBytesRead % (header.dataSize / 10) < sizeof(buffer)) {
-                float progress = (float)totalBytesRead / header.dataSize * 100;
-                Serial.printf("Progress: %.1f%%\n", progress);
-            }
+            #if DEBUG
+                if (header.dataSize > 0 && totalBytesRead % (header.dataSize / 10) < sizeof(buffer)) {
+                    float progress = (float)totalBytesRead / header.dataSize * 100;
+                    Serial.printf("Progress: %.1f%%\n", progress);
+                }
+            #endif
         }
     }
 
     audioFile.close();
 
     if (cancelPlayback) {
-        Serial.println("Playback canceled by interrupt.");
+        #if DEBUG
+            Serial.println("Playback canceled by interrupt.");
+        #endif
     } else {
-        Serial.println("Playback finished!");
+        #if DEBUG
+            Serial.println("Playback finished!");
+        #endif
     }
 }

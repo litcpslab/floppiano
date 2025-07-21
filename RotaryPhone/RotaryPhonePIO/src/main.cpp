@@ -2,12 +2,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include "driver/i2s.h"
-#include "esp_spiffs.h"
 #include <SD.h>
-#include <AudioFileSourceSD.h>
-#include <AudioGeneratorMP3.h>
-#include <AudioOutputI2S.h>
-#include <vector>
 
 #include "config.h"
 #include "communication_manager.h"
@@ -22,7 +17,7 @@ int mappingCount = 0;
 int currentRank = 1;
 int maxRank = 0;
 char notAvailableFileName[AUDIOFILENAME_MAX];
-
+char noNumberFileName[AUDIOFILENAME_MAX];
 
 void setup() {
     Serial.begin(115200);
@@ -37,8 +32,6 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(rotary_pin), rotaryInterrupt, RISING);
 
     refreshMappings();
-    
-
 }
 
 
@@ -54,8 +47,10 @@ void loop() {
         }
 
         phoneNumber = phoneNumber * 10 + digit;
-        Serial.print("Dialed digit: ");
-        Serial.println(digit);
+        #if DEBUG
+            Serial.print("Dialed digit: ");
+            Serial.println(digit);
+        #endif
 
         lastPulseTime = millis();
     }
@@ -67,38 +62,42 @@ void loop() {
         #endif
 
         bool matchFound = false;
+        char filePath[64];
         for (int i=0; i < mappingCount && i < 10; i++) {
             if (phoneNumber == mappings[i].phoneNumber) {
-                if (mappings[i].rank == currentRank && active) {
+                matchFound = true;
+                if (mappings[i].rank >= currentRank && active) {
                     #if DEBUG
                         Serial.print("Correct phone number dialed: ");
                     #endif
-                    char filePath[64];
                     snprintf(filePath, sizeof(filePath), "/%s", mappings[i].fileName);
                     play_audio(filePath); 
                     if (mappings[i].rank == 1) {
                         publish_done();
                         currentRank = maxRank;
-                    } else {
+                    } else if (mappings[i].rank == currentRank) {
                         currentRank--;
                     }
-                    matchFound = true;
                     break;
                 } else if (mappings[i].rank == 0) {
                     #if DEBUG
                         Serial.println("Easter egg found!");
                     #endif
-                    char filePath[64];
                     snprintf(filePath, sizeof(filePath), "/%s", mappings[i].fileName);
                     play_audio(filePath); 
+                } else {
+                    snprintf(filePath, sizeof(filePath), "/%s", notAvailableFileName);
+                    play_audio(filePath);
                 }
-            }
+            } 
         }
 
         if (!matchFound) {
             #if DEBUG
                 Serial.println("Incorrect phone number.");
             #endif
+            snprintf(filePath, sizeof(filePath), "/%s", noNumberFileName);
+            play_audio(filePath);
         }
 
         phoneNumber = 0;

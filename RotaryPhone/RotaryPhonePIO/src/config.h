@@ -45,7 +45,7 @@ static const char* mapping_file = "/mapping.txt";
 static const int rotary_pin = 14;
 
 
-static const float volume = 0.5;
+static const float volume = 0.2;
 
 // I2S configuration
 #define SAMPLE_RATE     44100
