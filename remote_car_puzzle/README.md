@@ -1,6 +1,16 @@
 # Remote Car Puzzle Document
 
+## Overview
+This is an interactive remote control car project built with a Raspberry Pi, motors, camera, and sensors. The car is designed to navigate a maze, interact with physical objects, and solve challenges such as aligning QR code pieces to complete a task. It is controlled remotely through a web interface and communicates using MQTT protocol.
 
+## Task description
+The car's primary task is to navigate through a custom-built maze, locate a movable object with half of a QR code, and push the object to align it with the other half of the code positioned in the maze. Once aligned, the car uses its camera to scan the full QR code, verifying the solution.
+Additional challenges and customizations can include:
+- Varying maze difficulty
+- Detecting multiple QR codes
+- Time-based puzzle solving
+
+## Set Up
 ### Install OS
 - Install Raspberry Pi OS using the Raspberry Pi Imager.
 - Enable SSH and Wi-Fi settings during imaging.
