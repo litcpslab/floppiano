@@ -1,4 +1,4 @@
-# embedded-project
+# Remote Car Puzzle Document
 
 
 ### Install OS
@@ -9,8 +9,7 @@
 Run the following commands to update your system and install required Python packages:
 ```
 sudo apt update
-sudo apt install python3-picamera2 python3-lgpio
-install flask
+sudo apt install python3-picamera2 python3-lgpio python3-flask
 ```
 
 ### Clone the Repository
