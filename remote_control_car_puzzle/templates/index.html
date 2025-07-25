@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Professor Nacht's Cipher</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; background: #111; color: #eee; }
+        button { width: 150px; height: 60px; font-size: 18px; margin-top: 20px; cursor: pointer; }
+        #controller, #video-section, #success-screen { display: none; }
+        #qr-count { font-size: 24px; margin-top: 20px; color: #0f0; }
+        #video {
+            width: 640px;
+            height: 480px;
+            transition: transform 0.5s;
+            rotate: 180deg; /* Start upside down */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Intro Story Section -->
+    <div id="intro">
+        <h1>Professor Nacht's Fractured Cipher</h1>
+        <p>
+            In his final act of madness, Professor Nacht split his encryption key into <strong>three QR codes</strong>, each torn in half and hidden in the lab.
+            Reunite and scan the parts to stop his final protocol.
+        </p>
+        <p><em>Can you piece together my broken mind, or will you lose yours trying?</em></p>
+        <button onclick="startGame()">Start Mission</button>
+    </div>
+
+    <!-- Game UI -->
+    <div id="video-section">
+        <img id="video" src="/video_feed" width="640" height="480" />
+        <div id="qr-count">Scanned: 0 / 3</div>
+    </div>
+
+    <div id="controller">
+        <h2>Robot Controller</h2>
+        <div>
+            <button id="forward">Forward</button>
+        </div>
+        <div>
+            <button id="left">Left</button>
+            <button id="right">Right</button>
+        </div>
+        <div>
+            <button id="backward">Backward</button>
+        </div>
+    </div>
+
+    <!-- Success Section -->
+    <div id="success-screen" class="hidden">
+        <h1>🎉 Mission Complete!</h1>
+        <p>You Successfully Stopped the Professor's Final Protocol!</p>
+        <p>Your quick thinking and robot control skills saved the day. The evil professor’s scheme has been neutralized!</p>
+    </div>
+
+    <script>
+        function startGame() {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('video-section').style.display = 'block';
+            document.getElementById('controller').style.display = 'block';
+            pollQRCount();
+        }
+
+        let reverseControls = false;
+        function sendCommand(direction) {
+            // Reverse mapping logic
+            if (reverseControls) {
+                const reverseMap = {
+                    forward: 'backward',
+                    backward: 'forward',
+                    left: 'right',
+                    right: 'left'
+                };
+                direction = reverseMap[direction] || direction;
+            }
+            fetch('/move', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ direction })
+            });
+        }
+
+        ['forward', 'backward', 'left', 'right'].forEach(id => {
+            const btn = document.getElementById(id);
+            btn.addEventListener('mousedown', () => sendCommand(id));
+            btn.addEventListener('touchstart', () => sendCommand(id));
+            ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach(eventType => {
+                btn.addEventListener(eventType, () => sendCommand('stop'));
+            });
+        });
+
+        function updateUIByQRCount(count) {
+            document.getElementById('qr-count').textContent = `Scanned: ${count} / 3`;
+
+            const video = document.getElementById('video');
+            if (count >= 1) {
+                video.style.transform = "rotate(180deg)";
+            } else {
+                video.style.transform = "rotate(0deg)";
+            }
+
+            // Reverse controls after 2 QR codes
+            reverseControls = (count >= 2);
+
+            if (count === 3) {
+                document.getElementById('success-screen').style.display = 'block';
+                document.getElementById('video-section').style.display = 'none';
+                document.getElementById('controller').style.display = 'none';
+                // Stop the qr code polling
+                clearInterval(qrIntervalId);
+            }
+        }
+
+        let qrIntervalId = null;
+        function pollQRCount() {
+            qrIntervalId = setInterval(() => {
+                fetch('/qr_count')
+                    .then(res => res.json())
+                    .then(data => updateUIByQRCount(data.count))
+                    .catch(err => console.error('QR count fetch error:', err));
+            }, 1000);  // Poll every second
+        }
+    </script>
+
+</body>
+</html>
