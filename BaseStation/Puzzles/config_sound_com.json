@@ -1,0 +1,32 @@
+{
+    "name": "Sound Communication",
+    "description": "In this puzzle you will have to figure out a code and transimt the data via sound.",
+    "points": 100,
+    "reveal_after_finish": "Look at the door",
+    "hints": [
+        {
+            "name": "The Code",
+            "text": "Try writing the text as an system of equations",
+            "points": 10
+        },
+        {
+            "name": "Prime Number",
+            "text": "The prime number is 7",
+            "points": 10
+        },
+        {
+            "name": "Evenness",
+            "text": "There are more odd numbers then even numbers in the final code",
+            "points": 10
+        },
+        {
+            "name": "Solution",
+            "text": "The code is 3-4-6-7-7",
+            "points": 70
+        }
+    ],
+    "mqtt":
+    {
+        "topic": "pr_embedded/soundcom"
+    }
+}

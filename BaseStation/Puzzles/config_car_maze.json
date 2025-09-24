@@ -1,0 +1,26 @@
+{
+    "name": "Maze of Codes",
+    "description": "Use the direction controls to navigate the car through the maze.\nYour goal is to locate and align the hidden QR code pieces",
+    "points": 100,
+    "hints": [
+        {
+            "name": "Inverted Vision",
+            "text": "Not everything is as it seems—when things look upside down, perhaps your progress is right side up.",
+            "points": 10
+        },
+        {
+            "name": "Twisted Controls",
+            "text": "Sometimes you must go left… by pressing right",
+            "points": 10
+        },
+        {
+            "name": "Solution",
+            "text": "You pushed the three boxes into position, successfully aligning the halves of each QR code.\nOnce combined, each QR code was scanned to progress through the puzzle.",
+            "points": 80
+        }
+    ],
+    "mqtt":
+    {
+        "topic": "pr_embedded/car_maze"
+    }
+}
