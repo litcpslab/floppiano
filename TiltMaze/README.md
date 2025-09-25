@@ -71,6 +71,7 @@ A virtual environment for Python 3 is created to install the required libraries.
 - re
 - abc
 - paho-mqtt
+- matplotlib
 
 A shell script is used to start the game in the virtual environment. 
 ``` 
@@ -269,5 +270,6 @@ The next image shows the game after the last checkpoint is reached: the checkpoi
 <img src="documentation/GameImageCode.png" alt="code overlay" width="800"/>
 
 The last image shows the final overlay after entering the correct code. The game was played in offline mode, therefore the time taken and the number of times the ball fell into holes is shown.
+
 
 <img src="documentation/GameImageFinished.png" alt="final overlay" width="800"/>
