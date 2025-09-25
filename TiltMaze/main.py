@@ -6,6 +6,7 @@ from classes.game_app import GameApp
 app = GameApp()
 app.run()
 
+# Show plots for debugging
 if app.config.mpl_debug:
         try:
             import matplotlib.pyplot as plt
@@ -21,8 +22,8 @@ if app.config.mpl_debug:
             # Use a discrete colormap with enough colors
             cmap = plt.get_cmap('gray', vmax - vmin + 1)
 
-            colors = cmap(np.arange(cmap.N))  # alle Farben     #-----
-            cmap_new = plt.cm.colors.ListedColormap(colors[1:-1]) #-------
+            colors = cmap(np.arange(cmap.N))
+            cmap_new = plt.cm.colors.ListedColormap(colors[1:-1])
             bounds_new = bounds[1:-1] # cut bounds for new cmap 
             norm = BoundaryNorm(bounds_new, cmap_new.N)
 
@@ -38,7 +39,6 @@ if app.config.mpl_debug:
 
             # Vector field
             # ========================================================================
-            # Downsample for clarity (optional, otherwise plot will be very dense)
             plot_data = app.game_map.val_data
             step = 1  # plot every 10th pixel
             Y, X = np.mgrid[0:plot_data.shape[0]:step, 0:plot_data.shape[1]:step]
@@ -55,4 +55,5 @@ if app.config.mpl_debug:
             # ========================================================================
 
         except ImportError:
+
             print("Matplotlib not installed. Cannot display debug plots.")
