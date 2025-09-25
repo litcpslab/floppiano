@@ -1,6 +1,6 @@
 {
-    "control": "mpu6050",
-    "online_mode": true,
+    "control": "keyboard",
+    "online_mode": false,
     "mpl_debug": false,
     "checkpoints": "1H\t9O\t7L\t0E",
     "time_step_size": 20,
@@ -21,4 +21,5 @@
     "screen_height": 480,
     "fan_gpio": 15,
     "vibration_gpio": 14
+
 }
