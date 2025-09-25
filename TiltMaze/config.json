@@ -1,0 +1,24 @@
+{
+    "control": "mpu6050",
+    "online_mode": true,
+    "mpl_debug": false,
+    "checkpoints": "1H\t9O\t7L\t0E",
+    "time_step_size": 20,
+    "position_step_size": 0.1,
+    "acceleration_factor": 100,
+    "damping_factor": 0.8,
+    "ball_radius": 10,
+    "hole_radius": 12,
+    "map_file_name": "map_v1.txt",
+
+    "broker": "TODO",
+    "port": 1883,
+    "topic": "pr_embedded/puzzle_tilt_maze",
+    "username": "TODO",
+    "password": "TODO",
+
+    "screen_width": 800,
+    "screen_height": 480,
+    "fan_gpio": 15,
+    "vibration_gpio": 14
+}
